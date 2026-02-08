@@ -45,7 +45,7 @@ export default function Navbar() {
       >
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <Link href="/" className="font-bold text-xl text-orange-500 tracking-tighter">
-            HelpFinder
+            TamHa
           </Link>
           
           <div className="hidden md:flex gap-8 items-center text-zinc-400">

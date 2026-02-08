@@ -3,10 +3,10 @@ import PostCard from "@/components/PostCard";
 
 export default function Dashboard() {
   const mockData = [
-    { id: 1, title: "น้องแมวส้ม ชื่อส้มจี๊ดหลงทาง", location: "ห่างจากคุณ 200 เมตร", reward: 5000, type: "สัตว์เลี้ยง" },
-    { id: 2, title: "กระเป๋าสตางค์สีดำ แบรนด์หนัง", location: "สยามพารากอน", reward: 1000, type: "ของใช้" },
-    { id: 3, title: "พวงกุญแจรถยนต์ Toyota", location: "ลานจอดรถเซ็นทรัล", reward: 500, type: "ของใช้" },
-    { id: 4, title: "พาสปอร์ต ชื่อคุณวิชัย", location: "สนามบินสุวรรณภูมิ", reward: 2000, type: "เอกสาร" },
+    { id: 1, title: "น้องแมวส้ม ชื่อส้มจี๊ดหลงทาง", findtype: "ตามหาของหาย", location: "ห่างจากคุณ 200 เมตร", reward: 5000, type: "สัตว์เลี้ยง" },
+    { id: 2, title: "กระเป๋าสตางค์สีดำ แบรนด์หนัง", findtype: "ตามหาเจ้าของ", location: "สยามพารากอน", reward: 1000, type: "ของใช้" },
+    { id: 3, title: "พวงกุญแจรถยนต์ Toyota", findtype: "ตามหาเจ้าของ", location: "ลานจอดรถเซ็นทรัล", reward: 500, type: "ของใช้" },
+    { id: 4, title: "พาสปอร์ต ชื่อคุณวิชัย", findtype: "ตามหาของหาย", location: "สนามบินสุวรรณภูมิ", reward: 2000, type: "เอกสาร" },
   ];
 
   return (
@@ -27,7 +27,7 @@ export default function Dashboard() {
           
           {/* หมวดหมู่ด่วน (Horizontal Scroll บนมือถือ) */}
           <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-            {["ทั้งหมด", "สัตว์เลี้ยง", "ของใช้", "เอกสาร", "คนหาย"].map((cat) => (
+            {["ทั้งหมด", "ตามหาของหาย", "ตามหาเจ้าของ", "สัตว์เลี้ยง", "เอกสาร", "คนหาย"].map((cat) => (
               <button key={cat} className="whitespace-nowrap px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-sm hover:bg-orange-500 transition-colors">
                 {cat}
               </button>
@@ -62,10 +62,10 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* ปุ่มสร้างโพสต์แบบลอย (Mobile FAB) */}
-      <button className="fixed bottom-20 right-6 w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/20 text-white text-3xl font-light md:bottom-10 md:right-10 hover:scale-110 transition-transform active:scale-95 z-40">
+      {/* ปุ่มสร้างโพสต์แบบลอย (Mobile FAB) <button className="fixed bottom-20 right-6 w-14 h-14 bg-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/20 text-white text-3xl font-light md:bottom-10 md:right-10 hover:scale-110 transition-transform active:scale-95 z-40">
         +
-      </button>
+      </button>*/}
+      
     </div>
   );
 }
