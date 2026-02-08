@@ -58,11 +58,11 @@ export default function LoginPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       onClick={() => router.back()} // หรือ router.push('/')
-      className="absolute top-6 left-6 z-[100] p-2 bg-zinc-900/50 border border-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors backdrop-blur-md"
+      className="absolute top-6 left-6 z-[100] p-2.5 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white transition-all backdrop-blur-md active:scale-90"
     >
       <ChevronLeft size={24} />
     </motion.button>
-    
+
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-orange-600/10 blur-[120px] rounded-full" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-900/10 blur-[120px] rounded-full" />
@@ -179,6 +179,11 @@ export default function LoginPage() {
                         </button>
                     </form>
 
+                    <p className="mt-10 text-center text-zinc-500 text-sm font-medium">
+                        New here?{" "}
+                        <Link href="/register" className="text-orange-500 font-black hover:underline underline-offset-4 decoration-2">Create Account</Link>
+                    </p>
+
                     <div className="relative my-10">
                         <div className="absolute inset-0 flex items-center">
                             <div className="w-full border-t border-zinc-800"></div>
@@ -197,10 +202,7 @@ export default function LoginPage() {
                         Login with Google
                     </button>
 
-                    <p className="mt-10 text-center text-zinc-500 text-sm font-medium">
-                        New here?{" "}
-                        <Link href="/register" className="text-orange-500 font-black hover:underline underline-offset-4 decoration-2">Create Account</Link>
-                    </p>
+                   
                 </div>
             </motion.div>
         </div>
