@@ -43,8 +43,9 @@ export default function LoginPage() {
     const handleGoogleLogin = async () => {
         await supabase.auth.signInWithOAuth({
             provider: "google",
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
+            options: {redirectTo: "http://localhost:3000/auth/callback",
+            // ⚠️ มั่นใจว่าไม่ได้ใส่ flowType: 'implicit' ลงไป
+            // ถ้าไม่มีการกำหนด มันจะเป็น PKCE (ส่ง ?code=) โดยอัตโนมัติ
             },
         });
     };
@@ -54,14 +55,14 @@ export default function LoginPage() {
             {/* Background Decor - แสงฟุ้งๆ ด้านหลัง */}
 
             {/* --- Back Button --- */}
-    <motion.button
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      onClick={() => router.back()} // หรือ router.push('/')
-      className="absolute top-6 left-6 z-[100] p-2.5 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white transition-all backdrop-blur-md active:scale-90"
-    >
-      <ChevronLeft size={24} />
-    </motion.button>
+            <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={() => router.back()} // หรือ router.push('/')
+                className="absolute top-6 left-6 z-[100] p-2.5 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white transition-all backdrop-blur-md active:scale-90"
+            >
+                <ChevronLeft size={24} />
+            </motion.button>
 
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-orange-600/10 blur-[120px] rounded-full" />
@@ -202,7 +203,7 @@ export default function LoginPage() {
                         Login with Google
                     </button>
 
-                   
+
                 </div>
             </motion.div>
         </div>
