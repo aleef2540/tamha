@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { useState } from "react";
+// Import Icons จาก Lucide
+import { Home, Map, PlusCircle, User, Bell  } from "lucide-react";
+
 
 export default function Navbar() {
   const { scrollY } = useScroll();
@@ -68,18 +71,26 @@ export default function Navbar() {
         transition={{ duration: 0.35, ease: "easeInOut" }}
         className="md:hidden fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-lg border-t border-zinc-800 px-6 py-3 z-50"
       >
-        <div className="flex justify-around items-center text-zinc-500">
+        <div className="flex justify-center gap-8 items-center text-zinc-500">
           <Link href="/dashboard" className="flex flex-col items-center gap-1 text-orange-500">
-             <span className="text-[10px] font-medium font-sans uppercase">Feed</span>
+          <Home size={22} />
+             <span className="text-[10px] font-medium font-sans uppercase">หน้าหลัก</span>
           </Link>
           <button className="flex flex-col items-center gap-1 hover:text-white">
-             <span className="text-[10px] font-medium font-sans uppercase">Map</span>
+          <Map size={22} />
+             <span className="text-[10px] font-medium font-sans uppercase">แผนที่</span>
           </button>
           <button className="flex flex-col items-center gap-1 hover:text-white text-orange-500 bg-orange-500/10 px-4 py-1 rounded-full">
+          <PlusCircle size={28} strokeWidth={2.5} />
              <span className="text-[10px] font-bold font-sans uppercase">Post</span>
           </button>
           <button className="flex flex-col items-center gap-1 hover:text-white">
-             <span className="text-[10px] font-medium font-sans uppercase">User</span>
+          <Bell  size={22} />
+             <span className="text-[10px] font-medium font-sans uppercase">การแจ้งเตือน</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 hover:text-white">
+          <User size={22} />
+             <span className="text-[10px] font-medium font-sans uppercase">โปรไฟล์</span>
           </button>
         </div>
       </motion.nav>
