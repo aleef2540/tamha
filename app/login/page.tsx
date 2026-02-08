@@ -7,6 +7,8 @@ import { Mail, Lock, Chrome, ArrowRight, Cat, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { ChevronLeft } from "lucide-react";
+
 
 export default function LoginPage() {
     const router = useRouter();
@@ -50,6 +52,17 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-black text-white flex items-center justify-center p-0 md:p-6 font-sans">
             {/* Background Decor - แสงฟุ้งๆ ด้านหลัง */}
+
+            {/* --- Back Button --- */}
+    <motion.button
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      onClick={() => router.back()} // หรือ router.push('/')
+      className="absolute top-6 left-6 z-[100] p-2 bg-zinc-900/50 border border-zinc-800 rounded-full text-zinc-400 hover:text-white transition-colors backdrop-blur-md"
+    >
+      <ChevronLeft size={24} />
+    </motion.button>
+    
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-orange-600/10 blur-[120px] rounded-full" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-900/10 blur-[120px] rounded-full" />
