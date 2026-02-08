@@ -1,5 +1,7 @@
 import Image from "next/image";
 import TypewriterEffect from "@/components/TypewriterEffect";
+import Link from "next/link";
+
 
 export default function Home() {
   const typewriterText = "คน สัตว์ ของ";
@@ -49,12 +51,12 @@ export default function Home() {
 
         {/* Action Buttons */}
         <div className="flex flex-col gap-4 w-full sm:flex-row sm:justify-center sm:w-auto">
-          <a
+          <Link
             className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-orange-500 px-10 text-lg font-bold text-white transition-all hover:bg-orange-600 active:scale-95 sm:w-auto"
-            href="#"
+            href="/Dashboard"
           >
             เข้าสู่เว็บไซต์
-          </a>
+          </Link>
           <a
             className="flex h-14 w-full items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/50 px-10 text-lg font-bold text-white transition-all hover:bg-zinc-800 hover:border-zinc-700 active:scale-95 sm:w-auto"
             href="#"
