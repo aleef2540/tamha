@@ -1,6 +1,8 @@
-export default function PostCard({ title, location, reward, type, findtype }: any) {
+import Link from "next/link";
+export default function PostCard({ title, location, reward, type, findtype, id }: any) {
     return (
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex gap-4 hover:border-orange-500/50 transition-colors cursor-pointer group">
+      <Link href={`/Post/${id}`}>
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex gap-4 hover:border-orange-500/50 transition-colors cursor-pointer group">
         {/* รูปภาพ (Placeholder) */}
         <div className="w-24 h-24 bg-zinc-800 rounded-xl flex-shrink-0 flex items-center justify-center text-zinc-600">
           Img
@@ -25,5 +27,7 @@ export default function PostCard({ title, location, reward, type, findtype }: an
           </div>
         </div>
       </div>
+      </Link>
+      
     );
   }

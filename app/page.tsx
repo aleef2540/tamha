@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function Home() {
   const typewriterText = "คน สัตว์ ของ";
-  const typewriterText1 = "FIND IT ALL";
+  const typewriterText1 = "FIND WHAT YOU LOST.";
 
   return (
     <div className="flex min-h-screen justify-center bg-black font-sans selection:bg-orange-500/30 overflow-hidden">
@@ -57,12 +57,12 @@ export default function Home() {
           >
             เข้าสู่เว็บไซต์
           </Link>
-          <a
+          <Link
             className="flex h-14 w-full items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/50 px-10 text-lg font-bold text-white transition-all hover:bg-zinc-800 hover:border-zinc-700 active:scale-95 sm:w-auto"
-            href="#"
+            href="/login"
           >
-            ดูแผนที่รอบตัว
-          </a>
+            เข้าสู่ระบบ
+          </Link>
         </div>
 
         {/* Copyright Footer */}
