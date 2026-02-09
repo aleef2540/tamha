@@ -18,12 +18,17 @@ export default function LoginPage() {
     const [errorMsg, setErrorMsg] = useState("");
 
     const getURL = () => {
-        // เช็คว่ารันบน Browser หรือไม่
+        // 1. ถ้าทำงานใน Browser ให้ดึง URL จากช่อง Address Bar เลย (ชัวร์ที่สุด)
         if (typeof window !== "undefined") {
             return window.location.origin; 
         }
-        // Fallback สำหรับฝั่ง Server
-        return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    
+        // 2. ถ้าทำงานฝั่ง Server (เช่นตอน Build) ให้ลองหาจาก Env
+        let url = process.env.NEXT_PUBLIC_SITE_URL ?? 
+                  process.env.NEXT_PUBLIC_VERCEL_URL ?? 
+                  'http://localhost:3000';
+    
+        return url.includes('http') ? url : `https://${url}`;
     };
 
 
