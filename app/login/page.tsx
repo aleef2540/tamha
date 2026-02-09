@@ -26,7 +26,7 @@ export default function LoginPage() {
         // 2. ถ้าทำงานฝั่ง Server (เช่นตอน Build) ให้ลองหาจาก Env
         let url = process.env.NEXT_PUBLIC_SITE_URL ?? 
                   process.env.NEXT_PUBLIC_VERCEL_URL ?? 
-                  'http://localhost:3000';
+                  'tamha-th.vercel.app';
     
         return url.includes('http') ? url : `https://${url}`;
     };
