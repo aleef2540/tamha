@@ -43,9 +43,10 @@ export default function LoginPage() {
     const handleGoogleLogin = async () => {
         await supabase.auth.signInWithOAuth({
             provider: "google",
-            options: {redirectTo: "http://localhost:3000/auth/callback",
-            // ⚠️ มั่นใจว่าไม่ได้ใส่ flowType: 'implicit' ลงไป
-            // ถ้าไม่มีการกำหนด มันจะเป็น PKCE (ส่ง ?code=) โดยอัตโนมัติ
+            options: {
+                redirectTo: "http://localhost:3000/auth/callback",
+                // ⚠️ มั่นใจว่าไม่ได้ใส่ flowType: 'implicit' ลงไป
+                // ถ้าไม่มีการกำหนด มันจะเป็น PKCE (ส่ง ?code=) โดยอัตโนมัติ
             },
         });
     };
@@ -76,19 +77,20 @@ export default function LoginPage() {
             >
                 {/* --- Left Panel: Branding (Hidden on Mobile) --- */}
                 <div className="hidden lg:flex flex-col justify-between p-16 bg-gradient-to-br from-orange-600 to-orange-700 relative overflow-hidden">
-                    <div className="relative z-10 flex items-center gap-3">
-                        <div className="bg-white/20 p-1 rounded-2xl backdrop-blur-xl border border-white/20">
-                            <Image
-                                src="/logo.svg"       // เปลี่ยนเป็นชื่อไฟล์โลโก้ของคุณในโฟลเดอร์ public
-                                alt="FoundIt Logo"
-                                width={45}            // ปรับขนาดความกว้างตามใจชอบ
-                                height={45}           // ปรับขนาดความสูงตามใจชอบ
-                                className="object-contain"
-                            />
+                    <Link href="/" className="">
+                        <div className="relative z-10 flex items-center gap-3">
+                            <div className="bg-white/20 p-1 rounded-2xl backdrop-blur-xl border border-white/20">
+                                <Image
+                                    src="/logo.svg"       // เปลี่ยนเป็นชื่อไฟล์โลโก้ของคุณในโฟลเดอร์ public
+                                    alt="FoundIt Logo"
+                                    width={45}            // ปรับขนาดความกว้างตามใจชอบ
+                                    height={45}           // ปรับขนาดความสูงตามใจชอบ
+                                    className="object-contain"
+                                />
+                            </div>
+                            <span className="text-3xl font-black tracking-tighter uppercase italic">TamHa</span>
                         </div>
-                        <span className="text-3xl font-black tracking-tighter uppercase italic">TamHa</span>
-                    </div>
-
+                    </Link>
                     <div className="relative z-10">
                         <h2 className="text-6xl font-black leading-[0.9] tracking-tighter mb-8">
                             FIND WHAT<br />YOU LOST.
@@ -111,6 +113,7 @@ export default function LoginPage() {
                 {/* --- Right Panel: Form Zone --- */}
                 <div className="p-8 sm:p-12 lg:p-16 flex flex-col justify-center bg-black/20 md:bg-transparent">
                     {/* Mobile Logo */}
+                    <Link href="/" className="">
                     <div className="lg:hidden flex items-center gap-2 mb-12">
                         <div className="bg-orange-500 p-2 rounded-xl">
                             <Image
@@ -123,6 +126,7 @@ export default function LoginPage() {
                         </div>
                         <span className="text-xl font-black italic">Tamha</span>
                     </div>
+                    </Link>
 
                     <div className="mb-10">
                         <h3 className="text-4xl font-black mb-3 tracking-tight">เข้าสู่ระบบ</h3>

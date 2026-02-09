@@ -53,7 +53,7 @@ export default function Home() {
         <div className="flex flex-col gap-4 w-full sm:flex-row sm:justify-center sm:w-auto">
           <Link
             className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-orange-500 px-10 text-lg font-bold text-white transition-all hover:bg-orange-600 active:scale-95 sm:w-auto"
-            href="/Dashboard"
+            href="/dashboard"
           >
             เข้าสู่เว็บไซต์
           </Link>
