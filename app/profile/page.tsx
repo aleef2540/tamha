@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react"; // เพิ่ม useRef
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -12,10 +12,10 @@ import Image from "next/image";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null); // สำหรับเรียกเปิดไฟล์
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [uploading, setUploading] = useState(false); // สถานะตอนอัปโหลดรูป
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
   const [profile, setProfile] = useState({
@@ -55,7 +55,15 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
-  // ฟังก์ชันอัปโหลดรูปภาพ
+  // --- ส่วนที่ปรับปรุง: ฟังก์ชันจัดการ URL รูปภาพให้เหมือน Navbar ---
+  const getAvatar = () => {
+    const googleImg = profile.avatar_url;
+    const isBrokenGoogleImg = googleImg && (googleImg.includes("picture/0") || googleImg.includes("default-user"));
+
+    if (googleImg && !isBrokenGoogleImg) return googleImg;
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${profile.email || 'guest'}`;
+  };
+
   const handleUploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true);
@@ -69,19 +77,16 @@ export default function ProfilePage() {
       const fileName = `${user.id}-${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      // 1. อัปโหลดไปที่ Storage
       const { error: uploadError } = await supabase.storage
         .from('avatar')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // 2. ดึง Public URL
       const { data: { publicUrl } } = supabase.storage
         .from('avatar')
         .getPublicUrl(filePath);
 
-      // 3. อัปเดตใน State และ Database ทันที
       setProfile({ ...profile, avatar_url: publicUrl });
       
       await supabase
@@ -143,7 +148,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-black text-white pb-20 font-sans">
-      {/* Input ไฟล์แบบซ่อน */}
       <input 
         type="file" 
         ref={fileInputRef} 
@@ -165,22 +169,25 @@ export default function ProfilePage() {
       <div className="max-w-2xl mx-auto px-6">
         <div className="flex flex-col items-center mb-10">
           <div className="relative group">
-            <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-orange-500/20 relative">
+            <div className="w-32 h-32 rounded-[2.5rem] overflow-hidden border-4 border-orange-500/20 relative flex items-center justify-center bg-zinc-900">
               {uploading && (
                 <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">
                   <Loader2 className="animate-spin text-orange-500" />
                 </div>
               )}
-              <Image 
-                src={profile.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky"} 
+              {/* --- ส่วนที่ปรับปรุง: ใช้ img พร้อม Logic เดียวกับ Navbar --- */}
+              <img 
+                src={getAvatar()} 
                 alt="Avatar" 
-                fill 
-                className="object-cover"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${profile.email}`;
+                }}
               />
             </div>
             <button 
               type="button"
-              onClick={() => fileInputRef.current?.click()} // คลิกที่นี่เพื่อเลือกรูป
+              onClick={() => fileInputRef.current?.click()}
               className="absolute bottom-0 right-0 bg-orange-500 p-2.5 rounded-2xl border-4 border-black group-hover:scale-110 transition-transform cursor-pointer"
             >
               <Camera size={18} className="text-white" />

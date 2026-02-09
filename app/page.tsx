@@ -57,17 +57,18 @@ export default function Home() {
           >
             เข้าสู่เว็บไซต์
           </Link>
-          <Link
+
+          {/* <Link
             className="flex h-14 w-full items-center justify-center rounded-full border border-zinc-800 bg-zinc-900/50 px-10 text-lg font-bold text-white transition-all hover:bg-zinc-800 hover:border-zinc-700 active:scale-95 sm:w-auto"
             href="/login"
           >
             เข้าสู่ระบบ
-          </Link>
+          </Link> */}
         </div>
 
         {/* Copyright Footer */}
         <div className="absolute bottom-8 text-zinc-600 text-sm hidden sm:block">
-          © 2026 HelpFinder Community. ยินดีที่ได้เป็นส่วนหนึ่งในการช่วยเหลือ
+          © 2026 TamHa Community. ยินดีที่ได้เป็นส่วนหนึ่งในการช่วยเหลือ
         </div>
       </main>
     </div>

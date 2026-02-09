@@ -10,17 +10,16 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [profileImg, setProfileImg] = useState<string | null>(null); // เพิ่ม state เก็บรูปโปรไฟล์จริง
+  const [profileImg, setProfileImg] = useState<string | null>(null);
 
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
-      if (user) fetchProfile(user.id); // ถ้ามี user ให้ไปดึงรูปจากตาราง profile
+      if (user) fetchProfile(user.id);
     };
     checkUser();
 
-    // ฟังก์ชันดึงรูปจากตาราง profiles เพื่อให้โชว์รูปที่เพิ่งอัปโหลดใหม่ได้
     const fetchProfile = async (userId: string) => {
       const { data } = await supabase
         .from("profiles")
@@ -56,14 +55,21 @@ export default function Navbar() {
     }
   });
 
+  // --- ฟังก์ชันจัดการ URL รูปภาพให้ชัวร์ 100% ---
+  const getAvatar = () => {
+    return (
+      profileImg || 
+      user?.user_metadata?.avatar_url || 
+      user?.user_metadata?.picture || 
+      `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email || 'guest'}`
+    );
+  };
+
   return (
     <>
       {/* --- TOP NAVBAR --- */}
       <motion.nav
-        variants={{
-          visible: { y: 0 },
-          hidden: { y: "-100%" },
-        }}
+        variants={{ visible: { y: 0 }, hidden: { y: "-100%" } }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.35, ease: "easeInOut" }}
         className="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md border-b border-zinc-800 px-6 py-4 z-50"
@@ -78,13 +84,13 @@ export default function Navbar() {
             <button className="hover:text-white transition-colors">แผนที่</button>
             <button className="hover:text-white transition-colors">แจ้งหาย</button>
 
-            {/* สลับปุ่ม Desktop (แก้ไขตรงนี้) */}
             {user ? (
-              <Link href="/profile" className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden hover:border-orange-500 transition-all">
+              <Link href="/profile" className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden hover:border-orange-500 transition-all flex items-center justify-center">
                 <img 
-                  src={profileImg || user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`} 
+                  src={getAvatar()} 
                   alt="profile" 
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`; }}
                 />
               </Link>
             ) : (
@@ -93,56 +99,55 @@ export default function Navbar() {
           </div>
 
           <div className="md:hidden flex items-center gap-4">
-            <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden">
-              {user && (
-                <img 
-                  src={profileImg || user?.user_metadata?.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`} 
-                  alt="profile" 
-                  className="w-full h-full object-cover" 
-                />
+             {/* แก้ไขส่วน Mobile Top Avatar */}
+             {user && (
+                <Link href="/profile" className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center">
+                    <img 
+                      src={getAvatar()} 
+                      alt="profile" 
+                      className="w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`; }}
+                    />
+                </Link>
               )}
-            </div>
           </div>
         </div>
       </motion.nav>
 
-      {/* --- BOTTOM NAVBAR (เฉพาะ Mobile) --- */}
+      {/* --- BOTTOM NAVBAR (Mobile) --- */}
       <motion.nav
-        variants={{
-          visible: { y: 0 },
-          hidden: { y: "100%" },
-        }}
+        variants={{ visible: { y: 0 }, hidden: { y: "100%" } }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.35, ease: "easeInOut" }}
         className="md:hidden fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-lg border-t border-zinc-800 px-6 py-3 z-50"
       >
-        <div className="flex justify-center gap-8 items-center text-zinc-500">
-          <Link href="/dashboard" className="flex flex-col items-center gap-1 text-orange-500">
+        <div className="flex justify-between gap-2 items-center text-zinc-500">
+          <Link href="/dashboard" className="flex flex-col items-center gap-1 text-orange-500 min-w-[60px]">
             <Home size={22} />
-            <span className="text-[10px] font-medium font-sans uppercase">หน้าหลัก</span>
+            <span className="text-[10px] font-medium uppercase">หน้าหลัก</span>
           </Link>
-          <button className="flex flex-col items-center gap-1 hover:text-white">
+          <button className="flex flex-col items-center gap-1 hover:text-white min-w-[60px]">
             <Map size={22} />
-            <span className="text-[10px] font-medium font-sans uppercase">แผนที่</span>
+            <span className="text-[10px] font-medium uppercase">แผนที่</span>
           </button>
           <button className="flex flex-col items-center gap-1 hover:text-white text-orange-500 bg-orange-500/10 px-4 py-1 rounded-full">
             <PlusCircle size={28} strokeWidth={2.5} />
-            <span className="text-[10px] font-bold font-sans uppercase">Post</span>
+            <span className="text-[10px] font-bold uppercase">Post</span>
           </button>
-          <button className="flex flex-col items-center gap-1 hover:text-white">
+          <button className="flex flex-col items-center gap-1 hover:text-white min-w-[60px]">
             <Bell size={22} />
-            <span className="text-[10px] font-medium font-sans uppercase">การแจ้งเตือน</span>
+            <span className="text-[10px] font-medium uppercase">แจ้งเตือน</span>
           </button>
 
           {user ? (
-            <Link href="/profile" className="flex flex-col items-center gap-1 hover:text-white">
+            <Link href="/profile" className="flex flex-col items-center gap-1 hover:text-white min-w-[60px]">
               <User size={22} />
-              <span className="text-[10px] font-medium font-sans uppercase">โปรไฟล์</span>
+              <span className="text-[10px] font-medium uppercase">โปรไฟล์</span>
             </Link>
           ) : (
-            <Link href="/login" className="flex flex-col items-center gap-1 text-orange-500">
+            <Link href="/login" className="flex flex-col items-center gap-1 text-orange-500 min-w-[60px]">
               <LogIn size={22} />
-              <span className="text-[10px] font-medium font-sans uppercase">Login</span>
+              <span className="text-[10px] font-medium uppercase">Login</span>
             </Link>
           )}
         </div>

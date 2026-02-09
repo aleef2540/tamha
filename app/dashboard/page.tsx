@@ -5,10 +5,12 @@ import PostCard from "@/components/PostCard";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
     const [items, setItems] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
 
     // ข้อมูลสำรอง (Fallback Mock Data)
     const fallbackLost = [
@@ -20,6 +22,26 @@ export default function Dashboard() {
         { id: "f1", title: "พบกุญแจรถยนต์ Toyota", findtype: "ตามหาเจ้าของ", location: "ลานจอดรถเซ็นทรัล", reward: 0, type: "ของใช้" },
         { id: "f2", title: "เจอพาสปอร์ต ชื่อคุณวิชัย", findtype: "ตามหาเจ้าของ", location: "สนามบินสุวรรณภูมิ", reward: 0, type: "เอกสาร" },
     ];
+
+    const router = useRouter();
+    useEffect(() => {
+        const checkProfile = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                // เช็คข้อมูลในตาราง profiles ว่ามีเบอร์โทรหรือยัง
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('phone')
+                    .eq('id', user.id)
+                    .single();
+
+                if (!profile || !profile.phone) {
+                    router.replace("/complete-profile"); // 👈 ส่งไปหน้ากรอกเบอร์โทร
+                }
+            }
+        };
+        checkProfile();
+    }, [router]);
 
     useEffect(() => {
         fetchItems();
@@ -56,6 +78,9 @@ export default function Dashboard() {
         );
     }
 
+
+
+
     return (
         <div className="min-h-screen bg-black text-white pb-24 pt-14 md:pt-14">
             <Navbar />
@@ -74,8 +99,8 @@ export default function Dashboard() {
 
                     <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                         {["ทั้งหมด", "ตามหาของหาย", "ตามหาเจ้าของ", "สัตว์เลี้ยง", "เอกสาร", "คนหาย"].map((cat) => (
-                            <button 
-                                key={cat} 
+                            <button
+                                key={cat}
                                 className="whitespace-nowrap px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-sm hover:bg-orange-500 hover:border-orange-500 transition-all active:scale-95"
                             >
                                 {cat}
