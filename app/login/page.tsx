@@ -17,6 +17,18 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
 
+    const getURL = () => {
+        let url =
+          process?.env?.NEXT_PUBLIC_SITE_URL ?? // ตั้งค่านี้ใน Vercel Env
+          process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Vercel มีให้กุอยู่แล้ว
+          'http://localhost:3000/'
+        
+        // ตรวจสอบว่ามี http หรือยัง
+        url = url.includes('http') ? url : `https://${url}`
+        return url
+      }
+
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -44,7 +56,7 @@ export default function LoginPage() {
         await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: "http://localhost:3000/auth/callback",
+                redirectTo: `${getURL()}/dashboard`,
                 // ⚠️ มั่นใจว่าไม่ได้ใส่ flowType: 'implicit' ลงไป
                 // ถ้าไม่มีการกำหนด มันจะเป็น PKCE (ส่ง ?code=) โดยอัตโนมัติ
             },
