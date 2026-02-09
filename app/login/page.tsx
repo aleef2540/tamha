@@ -18,15 +18,13 @@ export default function LoginPage() {
     const [errorMsg, setErrorMsg] = useState("");
 
     const getURL = () => {
-        let url =
-          process?.env?.NEXT_PUBLIC_SITE_URL ?? // ตั้งค่านี้ใน Vercel Env
-          process?.env?.NEXT_PUBLIC_VERCEL_URL ?? // Vercel มีให้กุอยู่แล้ว
-          'http://localhost:3000/'
-        
-        // ตรวจสอบว่ามี http หรือยัง
-        url = url.includes('http') ? url : `https://${url}`
-        return url
-      }
+        // เช็คว่ารันบน Browser หรือไม่
+        if (typeof window !== "undefined") {
+            return window.location.origin; 
+        }
+        // Fallback สำหรับฝั่ง Server
+        return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+    };
 
 
     const handleLogin = async (e: React.FormEvent) => {
