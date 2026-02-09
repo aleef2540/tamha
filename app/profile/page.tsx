@@ -55,13 +55,16 @@ export default function ProfilePage() {
     setLoading(false);
   };
 
-  // --- ส่วนที่ปรับปรุง: ฟังก์ชันจัดการ URL รูปภาพให้เหมือน Navbar ---
+  // --- Logic รูปภาพ: ใช้ Name เป็น Seed ตามที่คุณต้องการ ---
   const getAvatar = () => {
-    const googleImg = profile.avatar_url;
-    const isBrokenGoogleImg = googleImg && (googleImg.includes("picture/0") || googleImg.includes("default-user"));
+    const currentImg = profile.avatar_url;
+    const isBroken = !currentImg || currentImg.includes("picture/0") || currentImg.includes("default-user");
 
-    if (googleImg && !isBrokenGoogleImg) return googleImg;
-    return `https://api.dicebear.com/7.x/initials/svg?seed=${profile.email || 'guest'}`;
+    if (!isBroken) return currentImg;
+    
+    // เปลี่ยนจาก email เป็น full_name สำหรับสร้างรูปสำรอง
+    const seed = profile.full_name || profile.email || 'guest';
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
   };
 
   const handleUploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -175,15 +178,15 @@ export default function ProfilePage() {
                   <Loader2 className="animate-spin text-orange-500" />
                 </div>
               )}
-              {/* --- ส่วนที่ปรับปรุง: ใช้ img พร้อม Logic เดียวกับ Navbar --- */}
               <img 
-                src={getAvatar()} 
-                alt="Avatar" 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${profile.email}`;
-                }}
-              />
+                  src={getAvatar()} 
+                  alt="profile" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => { 
+                    const seed = profile.full_name || 'guest';
+                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`; 
+                  }}
+                />
             </div>
             <button 
               type="button"

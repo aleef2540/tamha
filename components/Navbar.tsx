@@ -10,7 +10,7 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [profileImg, setProfileImg] = useState<string | null>(null);
+  const [profileData, setProfileData] = useState({ avatar_url: "", full_name: "" });
 
   useEffect(() => {
     const checkUser = async () => {
@@ -20,19 +20,26 @@ export default function Navbar() {
     };
     checkUser();
 
+    // ดึงข้อมูลจาก Table profiles มาเป็นแหล่งข้อมูลหลัก (Source of Truth)
     const fetchProfile = async (userId: string) => {
       const { data } = await supabase
         .from("profiles")
-        .select("avatar_url")
+        .select("avatar_url, full_name")
         .eq("id", userId)
         .single();
-      if (data?.avatar_url) setProfileImg(data.avatar_url);
+
+      if (data) {
+        setProfileData({
+          avatar_url: data.avatar_url || "",
+          full_name: data.full_name || ""
+        });
+      }
     };
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) fetchProfile(session.user.id);
-      else setProfileImg(null);
+      else setProfileData({ avatar_url: "", full_name: "" });
     });
 
     return () => {
@@ -43,31 +50,29 @@ export default function Navbar() {
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious() ?? 0;
     const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
     if (isMobile) {
-      if (latest > previous && latest > 50) {
-        setHidden(true);
-      } else {
-        setHidden(false);
-      }
+      setHidden(latest > previous && latest > 50);
     } else {
       setHidden(false);
     }
   });
 
-  // --- ฟังก์ชันจัดการ URL รูปภาพให้ชัวร์ 100% ---
+  // --- Logic รูปภาพที่ต้องเหมือนกับหน้า Profile ---
   const getAvatar = () => {
-    return (
-      profileImg || 
-      user?.user_metadata?.avatar_url || 
-      user?.user_metadata?.picture || 
-      `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email || 'guest'}`
-    );
+    // 1. ใช้รูปจาก Database ถ้ามี
+    const currentImg = profileData.avatar_url;
+    const isBroken = !currentImg || currentImg.includes("picture/0") || currentImg.includes("default-user");
+
+    if (!isBroken) return currentImg;
+
+    // 2. ถ้าไม่มีรูป ให้สร้างจากชื่อใน Database (full_name) 
+    // ถ้าชื่อว่าง (ยังไม่ได้ตั้ง) ให้ใช้ Email แทนเพื่อให้ Seed นิ่ง
+    const seed = profileData.full_name || user?.email || 'guest';
+    return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
   };
 
   return (
     <>
-      {/* --- TOP NAVBAR --- */}
       <motion.nav
         variants={{ visible: { y: 0 }, hidden: { y: "-100%" } }}
         animate={hidden ? "hidden" : "visible"}
@@ -85,12 +90,15 @@ export default function Navbar() {
             <button className="hover:text-white transition-colors">แจ้งหาย</button>
 
             {user ? (
-              <Link href="/profile" className="w-9 h-9 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden hover:border-orange-500 transition-all flex items-center justify-center">
-                <img 
-                  src={getAvatar()} 
-                  alt="profile" 
+              <Link href="/profile" className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 overflow-hidden hover:border-orange-500 transition-all flex items-center justify-center">
+                <img
+                  src={getAvatar()}
+                  alt="profile"
                   className="w-full h-full object-cover"
-                  onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`; }}
+                  onError={(e) => {
+                    const seed = profileData.full_name || user?.email || 'guest';
+                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
+                  }}
                 />
               </Link>
             ) : (
@@ -98,19 +106,21 @@ export default function Navbar() {
             )}
           </div>
 
-          <div className="md:hidden flex items-center gap-4">
-             {/* แก้ไขส่วน Mobile Top Avatar */}
-             {user && (
-                <Link href="/profile" className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center">
-                    <img 
-                      src={getAvatar()} 
-                      alt="profile" 
-                      className="w-full h-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${user?.email}`; }}
-                    />
-                </Link>
-              )}
-          </div>
+          {/* <div className="md:hidden flex items-center gap-4">
+            {user && (
+              <Link href="/profile" className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 overflow-hidden flex items-center justify-center">
+                <img
+                  src={getAvatar()}
+                  alt="profile"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const seed = profileData.full_name || user?.email || 'guest';
+                    (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}`;
+                  }}
+                />
+              </Link>
+            )}
+          </div> */}
         </div>
       </motion.nav>
 
@@ -141,7 +151,13 @@ export default function Navbar() {
 
           {user ? (
             <Link href="/profile" className="flex flex-col items-center gap-1 hover:text-white min-w-[60px]">
-              <User size={22} />
+              <div className="w-6 h-6 rounded-md overflow-hidden border border-zinc-700">
+                <img
+                  src={getAvatar()}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <span className="text-[10px] font-medium uppercase">โปรไฟล์</span>
             </Link>
           ) : (
