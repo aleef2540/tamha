@@ -35,7 +35,7 @@ export default function PostCard({ title, location, reward, type, findtype, id, 
               
               <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-wider whitespace-nowrap ${
                 isLost 
-                  ? "bg-red-500/10 text-red-500 border border-red-500/20" 
+                  ? "bg-red-500/10 text-red-400 border border-red-500/20" 
                   : "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
               }`}>
                 {findtype}

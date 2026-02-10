@@ -87,7 +87,7 @@ export default function Navbar() {
           <div className="hidden md:flex gap-8 items-center text-zinc-400">
             <Link href="/dashboard" className="hover:text-white transition-colors">หน้าหลัก</Link>
             <button className="hover:text-white transition-colors">แผนที่</button>
-            <button className="hover:text-white transition-colors">แจ้งหาย</button>
+            <Link href="/Post" className="hover:text-white transition-colors">โพสต์</Link>
 
             {user ? (
               <Link href="/profile" className="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 overflow-hidden hover:border-orange-500 transition-all flex items-center justify-center">

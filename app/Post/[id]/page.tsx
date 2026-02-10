@@ -1,33 +1,87 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { useParams, useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
-import { MapPin, Calendar, Tag, Wallet, ChevronLeft, Share2, Maximize2, Image as ImageIcon } from "lucide-react";
+import { MapPin, Calendar, Tag, Wallet, ChevronLeft, Share2, Maximize2, Image as ImageIcon, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 
-// เรียกใช้ Map แบบ Dynamic เพื่อเลี่ยงปัญหา SSR
+// เรียกใช้ Map แบบ Dynamic
 const MapDetail = dynamic(() => import("@/components/MapDetail"), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-zinc-800 animate-pulse" />
 });
 
 export default function PostDetail() {
+  const params = useParams();
+  const router = useRouter();
   const [showFullMap, setShowFullMap] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const data = {
-    title: "น้องแมวส้ม ชื่อส้มจี๊ดหลงทาง",
-    findtype: "ตามหาของหาย",
-    reward: 5000,
-    type: "สัตว์เลี้ยง",
-    location: "ห่างจากคุณ 200 เมตร",
-    date: "7 ก.พ. 2026",
-    description: "น้องแมวเพศเมีย มีปลอกคอสีเขียว นิสัยขี้กลัวเล็กน้อย หายไปเมื่อช่วงเย็นวันที่ 7 กุมภาพันธ์ ใครพบเห็น rรบกวนติดต่อด่วนครับ มีเงินรางวัลนำส่ง",
-    fullLocation: "ห้างสรรพสินค้าสยามพารากอน ชั้น 2 โซนบันไดเลื่อน",
-    lat: 13.7468,
-    lng: 100.5352
+  useEffect(() => {
+    const fetchPostData = async () => {
+      try {
+        const { data: post, error } = await supabase
+          .from("items")
+          .select(`
+            *,
+            profiles:user_id (full_name, phone)
+          `)
+          .eq("id", params.id)
+          .single();
+
+        if (error) throw error;
+        
+        // แปลงข้อมูลจาก DB ให้เข้ากับโครงสร้างตัวแปรใน UI เดิม
+        const formattedData = {
+          title: post.title,
+          findtype: post.type === 'lost' ? "ตามหาของหาย" : "แจ้งพบของ",
+          reward: post.reward || 0,
+          type: post.category || "ทั่วไป",
+          location: post.location_name || "ไม่ระบุสถานที่",
+          date: new Date(post.created_at).toLocaleDateString('th-TH', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          }),
+          description: post.description,
+          fullLocation: post.location_name, // หรือใช้ฟิลด์ที่เก็บที่อยู่ละเอียด
+          lat: post.lat || 13.7468,
+          lng: post.lng || 100.5352,
+          image: post.image_url,
+          phone: post.profiles?.phone
+        };
+
+        setData(formattedData);
+      } catch (err) {
+        console.error("Error fetching post:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.id) fetchPostData();
+  }, [params.id]);
+
+  const handleContact = () => {
+    if (data?.phone) {
+      window.location.href = `tel:${data.phone}`;
+    } else {
+      alert("เจ้าของไม่ได้ลงเบอร์ติดต่อไว้");
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="text-orange-500 animate-spin" size={40} />
+      </div>
+    );
+  }
+
+  if (!data) return <div className="min-h-screen bg-black text-white flex items-center justify-center">ไม่พบข้อมูลประกาศ</div>;
 
   return (
     <div className="min-h-screen bg-black text-white pb-24 pt-20">
@@ -51,9 +105,10 @@ export default function PostDetail() {
           <div className="w-full lg:w-[45%] space-y-4">
             <div className="relative aspect-square w-full rounded-3xl overflow-hidden border border-zinc-800 bg-zinc-900">
               
-              {/* 1. รูปภาพหลัก (แสดงเป็นพื้นหลังตลอดเวลา) */}
+              {/* 1. รูปภาพหลัก (ดึงจาก DB) */}
               <div 
-                className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000')] bg-cover bg-center"
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url('${data.image}')` }}
               />
 
               {/* 2. แผนที่ฉบับเต็ม (ลอยทับเมื่อสั่งเปิด) */}
@@ -72,7 +127,7 @@ export default function PostDetail() {
 
               {/* ป้ายประเภท (อยู่บนสุดเสมอ) */}
               <div className="absolute top-4 left-4 z-20">
-                <span className="bg-orange-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg">
+                <span className={`${data.findtype === 'แจ้งพบของ' ? 'bg-green-600' : 'bg-orange-500'} text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest shadow-lg`}>
                   {data.findtype}
                 </span>
               </div>
@@ -82,7 +137,6 @@ export default function PostDetail() {
                 onClick={() => setShowFullMap(!showFullMap)}
                 className="absolute bottom-4 right-4 w-32 h-32 md:w-32 md:h-32 rounded-2xl border-4 border-black/50 overflow-hidden shadow-2xl transition-transform hover:scale-105 active:scale-95 z-30 group bg-zinc-900"
               >
-                {/* Logic: ถ้าจอใหญ่โชว์รูป ปุ่มเล็กต้องโชว์แมพ | ถ้าจอใหญ่โชว์แมพ ปุ่มเล็กต้องโชว์รูป */}
                 <div className="relative w-full h-full">
                   {!showFullMap ? (
                     <div className="w-full h-full pointer-events-none">
@@ -92,7 +146,10 @@ export default function PostDetail() {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=500')] bg-cover bg-center">
+                    <div 
+                      className="w-full h-full bg-cover bg-center"
+                      style={{ backgroundImage: `url('${data.image}')` }}
+                    >
                       <div className="absolute inset-0 bg-black/30 group-hover:bg-transparent transition-colors flex items-center justify-center">
                         <ImageIcon className="text-white drop-shadow-lg" size={24} />
                       </div>
@@ -102,17 +159,20 @@ export default function PostDetail() {
               </button>
             </div>
 
-            {/* Thumbnail Gallery */}
+            {/* Thumbnail Gallery (แสดงรูปเดิมซ้ำไปก่อนตาม UI ของคุณ) */}
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="aspect-square bg-zinc-900 rounded-2xl border border-zinc-800 hover:border-zinc-600 transition-colors cursor-pointer overflow-hidden">
-                  <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=200')] bg-cover bg-center opacity-40 hover:opacity-100 transition-opacity" />
+                  <div 
+                    className="w-full h-full bg-cover bg-center opacity-40 hover:opacity-100 transition-opacity"
+                    style={{ backgroundImage: `url('${data.image}')` }}
+                   />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* --- ฝั่งขวา: Information Zone (คงเดิมทุกอย่าง) --- */}
+          {/* --- ฝั่งขวา: Information Zone --- */}
           <div className="w-full lg:w-[55%] space-y-6">
             <div>
               <div className="flex items-center gap-2 text-orange-500 mb-2 font-bold text-sm">
@@ -165,7 +225,10 @@ export default function PostDetail() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <button className="flex-1 bg-white text-black font-black py-4 rounded-2xl hover:bg-orange-500 hover:text-white transition-all active:scale-95 text-lg">
+              <button 
+                onClick={handleContact}
+                className="flex-1 bg-white text-black font-black py-4 rounded-2xl hover:bg-orange-500 hover:text-white transition-all active:scale-95 text-lg"
+              >
                 ติดต่อเจ้าของ
               </button>
               <button className="flex-1 bg-zinc-900 text-white font-bold py-4 rounded-2xl border border-zinc-800 hover:bg-zinc-800 transition-all active:scale-95 text-lg">

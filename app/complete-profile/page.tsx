@@ -1,19 +1,24 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react"; // เพิ่ม Suspense
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Phone, ArrowRight, Loader2, User, LogOut } from "lucide-react";
 
-export default function CompleteProfilePage() {
+// 1. แยกเนื้อหา Form ออกมาเป็น Component ย่อย
+function CompleteProfileForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // ✅ ดึงค่า 'next' จาก URL ถ้าไม่มีให้ไปหน้า dashboard
+  const nextRoute = searchParams.get("next") || "/dashboard";
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [phone, setPhone] = useState("");
   const [userData, setUserData] = useState<{ name?: string; email?: string }>({});
 
-  // 1. ตรวจสอบสถานะ User และดึงข้อมูลเบื้องต้น
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user }, error } = await supabase.auth.getUser();
@@ -23,18 +28,18 @@ export default function CompleteProfilePage() {
         return;
       }
 
-      // ตรวจสอบว่ามีเบอร์โทรอยู่แล้วหรือยัง ถ้ามีแล้วให้ข้ามไป Dashboard เลย
       const { data: profile } = await supabase
         .from("profiles")
         .select("full_name, email, phone")
         .eq("id", user.id)
         .single();
 
+      // ✅ ถ้ามีเบอร์โทรอยู่แล้ว ให้ส่งไปที่ nextRoute เลย
       if (profile?.phone) {
-        router.push("/dashboard");
+        router.push(nextRoute);
       } else {
         setUserData({
-          name: profile?.full_name || user.user_metadata.full_name,
+          name: profile?.full_name || user.user_metadata.full_name || "คุณ",
           email: profile?.email || user.email,
         });
         setLoading(false);
@@ -42,9 +47,8 @@ export default function CompleteProfilePage() {
     };
 
     checkUser();
-  }, [router]);
+  }, [router, nextRoute]);
 
-  // 2. ฟังก์ชันอัปเดตเบอร์โทร
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -61,7 +65,7 @@ export default function CompleteProfilePage() {
         .eq("id", user.id);
 
       if (!error) {
-        router.push("/dashboard");
+        router.push(nextRoute);
         router.refresh();
       } else {
         alert("เกิดข้อผิดพลาด: " + error.message);
@@ -84,8 +88,7 @@ export default function CompleteProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Decor */}
+    <div className="min-h-screen bg-black text-white flex items-center justify-center p-6 relative overflow-hidden font-sans">
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-orange-600/10 blur-[120px] rounded-full" />
       
       <motion.div 
@@ -97,7 +100,10 @@ export default function CompleteProfilePage() {
           <div className="inline-flex p-3 bg-orange-500/10 rounded-2xl mb-4">
             <User className="text-orange-500" size={32} />
           </div>
-          <h1 className="text-3xl font-black tracking-tight mb-2">ยินดีต้อนรับคุณ, <br/> <span className="text-orange-500">{userData.name}</span></h1>
+          <h1 className="text-3xl font-black tracking-tight mb-2">
+            ยินดีต้อนรับคุณ, <br/> 
+            <span className="text-orange-500">{userData.name}</span>
+          </h1>
           <p className="text-zinc-500 text-sm font-medium">อีกขั้นตอนเดียวเพื่อเริ่มใช้งานระบบตามหาของ</p>
         </div>
 
@@ -125,7 +131,7 @@ export default function CompleteProfilePage() {
             disabled={submitting || !phone}
             className="w-full bg-white text-black font-black h-14 rounded-2xl flex items-center justify-center gap-2 hover:bg-orange-500 hover:text-white transition-all active:scale-[0.97] shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {submitting ? <Loader2 className="animate-spin" size={20} /> : "เข้าสู่ Dashboard"}
+            {submitting ? <Loader2 className="animate-spin" size={20} /> : "บันทึกข้อมูลและไปต่อ"}
             {!submitting && <ArrowRight size={20} />}
           </button>
         </form>
@@ -139,5 +145,18 @@ export default function CompleteProfilePage() {
         </button>
       </motion.div>
     </div>
+  );
+}
+
+// 2. Component หลักที่ Export ออกไป (หุ้มด้วย Suspense เพื่อแก้ Error)
+export default function CompleteProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="text-orange-500 animate-spin" size={40} />
+      </div>
+    }>
+      <CompleteProfileForm />
+    </Suspense>
   );
 }
